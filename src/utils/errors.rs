@@ -1,0 +1,47 @@
+use sea_orm::DbErr;
+use bcrypt::BcryptError;
+use jsonwebtoken::errors::Error as JwtError;
+use thiserror::Error;
+use serde::Serialize;
+
+#[derive(Debug, Error)]
+pub enum AppError {
+    #[error("Database error: {0}")]
+    DbError(#[from] DbErr),
+
+    #[error("Hashing error: {0}")]
+    HashingError(#[from] BcryptError),
+
+
+    #[error("Not Found: {0}")]
+    NotFound(String),
+
+
+
+    #[error("Token expired")]
+    TokenExpiredError,
+
+    #[error("Token validation error")]
+    TokenValidationError,
+
+    #[error("Token generation error")]
+    TokenGenerationError(#[from] JwtError),
+
+    #[error("Bcrypt error: {0}")]
+    BcryptError(String),
+
+    #[error("Invalid credentials")]
+    InvalidCredentials,
+
+    #[error("Email already exists")]
+    EmailAlreadyExists,
+}
+
+impl Serialize for AppError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::ser::Serializer,
+    {
+        serializer.serialize_str(self.to_string().as_ref())
+    }
+}
