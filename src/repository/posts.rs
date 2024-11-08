@@ -1,8 +1,11 @@
-use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, DbErr, EntityTrait, ModelTrait, QueryFilter, Set};
-use crate::domain::{PostRelationResponse, CreatePostRequest, UpdatePostRequest};
-use crate::entities::{posts, comments}; 
-use async_trait::async_trait;
 use crate::abstract_trait::PostsRepositoryTrait;
+use crate::domain::{CreatePostRequest, PostRelationResponse, UpdatePostRequest};
+use crate::entities::{comments, posts};
+use async_trait::async_trait;
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, DatabaseConnection, DbErr, EntityTrait, ModelTrait, QueryFilter,
+    Set,
+};
 
 pub struct PostRepository {
     db_pool: DatabaseConnection,
@@ -17,15 +20,11 @@ impl PostRepository {
 #[async_trait]
 impl PostsRepositoryTrait for PostRepository {
     async fn get_all_posts(&self) -> Result<Vec<posts::Model>, DbErr> {
-        posts::Entity::find()
-            .all(&self.db_pool)
-            .await
+        posts::Entity::find().all(&self.db_pool).await
     }
 
     async fn get_post(&self, post_id: i32) -> Result<Option<posts::Model>, DbErr> {
-        posts::Entity::find_by_id(post_id)
-            .one(&self.db_pool)
-            .await
+        posts::Entity::find_by_id(post_id).one(&self.db_pool).await
     }
 
     async fn get_post_relation(&self, post_id: i32) -> Result<Vec<PostRelationResponse>, DbErr> {
@@ -38,13 +37,8 @@ impl PostsRepositoryTrait for PostRepository {
         let result = post_with_comments
             .into_iter()
             .flat_map(|(post, comments)| {
-                comments.into_iter().map(move |comment| PostRelationResponse {
-                    post_id: post.id,
-                    title: post.title.clone(),
-                    comment_id: comment.id,
-                    id_post_comment: comment.id_post_comment,
-                    user_name_comment: comment.user_name_comment.clone(),
-                    comment: comment.comment.clone(),
+                comments.into_iter().map(move |comment| {
+                    PostRelationResponse::from_post_and_comment(&post, &comment)
                 })
             })
             .collect::<Vec<_>>();
@@ -52,10 +46,7 @@ impl PostsRepositoryTrait for PostRepository {
         Ok(result)
     }
 
-    async fn create_post(
-        &self,
-        input: &CreatePostRequest
-    ) -> Result<posts::Model, DbErr> {
+    async fn create_post(&self, input: &CreatePostRequest) -> Result<posts::Model, DbErr> {
         let new_post = posts::ActiveModel {
             title: Set(input.title.to_string()),
             body: Set(input.body.to_string()),
@@ -69,10 +60,7 @@ impl PostsRepositoryTrait for PostRepository {
         new_post.insert(&self.db_pool).await
     }
 
-    async fn update_post(
-        &self,
-        input: &UpdatePostRequest
-    ) -> Result<posts::Model, DbErr> {
+    async fn update_post(&self, input: &UpdatePostRequest) -> Result<posts::Model, DbErr> {
         let post = posts::Entity::find_by_id(input.post_id)
             .one(&self.db_pool)
             .await?

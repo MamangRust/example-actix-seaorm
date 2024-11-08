@@ -9,10 +9,10 @@ COPY . .
 
 # Perbarui sistem dan install dependensi untuk PostgreSQL
 RUN apt-get update && \
-  apt-get upgrade -y -o DPkg::Options::=--force-confold && \
-  apt-get install -y -o DPkg::Options::=--force-confold \
-  curl unzip build-essential pkg-config libssl-dev \
-  postgresql-client libpq-dev
+    apt-get upgrade -y -o DPkg::Options::=--force-confold && \
+    apt-get install -y -o DPkg::Options::=--force-confold \
+    curl unzip build-essential pkg-config libssl-dev \
+    postgresql-client libpq-dev
 
 # Install cargo-watch untuk pemantauan otomatis
 RUN cargo install cargo-watch

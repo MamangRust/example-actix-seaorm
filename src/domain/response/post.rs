@@ -1,7 +1,7 @@
 use sea_orm::entity::prelude::*;
 use serde::Serialize;
 
-use crate::entities::posts;
+use crate::entities::{comments, posts};
 
 #[derive(Debug, Serialize)]
 pub struct PostResponse {
@@ -12,7 +12,6 @@ pub struct PostResponse {
     pub user_id: i32,
     pub user_name: String,
 }
-
 
 impl From<posts::Model> for PostResponse {
     fn from(post: posts::Model) -> Self {
@@ -37,16 +36,15 @@ pub struct PostRelationResponse {
     pub comment: String,
 }
 
-
 impl PostRelationResponse {
-    fn from(post_relation: PostRelationResponse) -> Self {
+    pub fn from_post_and_comment(post: &posts::Model, comment: &comments::Model) -> Self {
         PostRelationResponse {
-            post_id: post_relation.post_id,
-            title: post_relation.title,
-            comment_id: post_relation.comment_id,
-            id_post_comment: post_relation.id_post_comment,
-            user_name_comment: post_relation.user_name_comment,
-            comment: post_relation.comment,
+            post_id: post.id,
+            title: post.title.clone(),
+            comment_id: comment.id,
+            id_post_comment: comment.id_post_comment,
+            user_name_comment: comment.user_name_comment.clone(),
+            comment: comment.comment.clone(),
         }
     }
 }
