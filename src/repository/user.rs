@@ -51,28 +51,34 @@ impl UserRepositoryTrait for UserRepository {
     }
 
     async fn update_user(&self, input: &UpdateUserRequest) -> Result<users::Model, DbErr> {
-        let mut user: users::ActiveModel = users::Entity::find_by_id(input.id)
+        let id = match input.id {
+            Some(id) => id, 
+            None => return Err(DbErr::Custom("User ID is required".to_string())), 
+        };
+    
+        let mut user: users::ActiveModel = users::Entity::find_by_id(id)
             .one(&self.db_pool)
             .await?
             .ok_or(DbErr::Custom("User not found".to_string()))?
             .into();
-
+    
+        // Update fields if provided
         if let Some(firstname) = &input.firstname {
             user.firstname = Set(firstname.clone());
         }
-
+    
         if let Some(lastname) = &input.lastname {
             user.lastname = Set(lastname.clone());
         }
-
+    
         if let Some(email) = &input.email {
             user.email = Set(email.clone());
         }
-
     
-
+        // Update the user in the database
         user.update(&self.db_pool).await
     }
+    
 
     async fn delete_user(&self, email: &str) -> Result<(), DbErr> {
         let user: users::ActiveModel = users::Entity::find()

@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait, ModelTrait, Set};
+use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait,  Set};
 
 use crate::domain::{CreateCommentRequest, UpdateCommentRequest};
 use crate::entities::{comments, Comments};

@@ -10,7 +10,7 @@ pub struct CreateUserRequest {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UpdateUserRequest {
-    pub id: i32,
+    pub id: Option<i32>,
     pub firstname: Option<String>,
     pub lastname: Option<String>,
    

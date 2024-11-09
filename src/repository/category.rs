@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait, ModelTrait, Set};
+use sea_orm::{ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait,  Set};
 
 use crate::domain::{CreateCategoryRequest, UpdateCategoryRequest};
 use crate::entities::{categories, Categories};
@@ -42,7 +42,12 @@ impl CategoryRepositoryTrait for CategoryRepository {
     }
 
     async fn update(&self, input: &UpdateCategoryRequest) -> Result<categories::Model, DbErr> {
-        let mut category: categories::ActiveModel = Categories::find_by_id(input.id)
+        let id = match input.id {
+            Some(id) => id, 
+            None => return Err(DbErr::Custom("Category ID is required".to_string())), 
+        };
+
+        let mut category: categories::ActiveModel = Categories::find_by_id(id)
             .one(&self.db_pool)
             .await?
             .ok_or(DbErr::Custom("Category not found".to_string()))?

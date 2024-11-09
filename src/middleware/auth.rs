@@ -54,6 +54,6 @@ impl FromRequest for JwtMiddleware {
 
         req.extensions_mut().insert::<i32>(user_id as i32);
 
-        ready(Ok(JwtMiddleware { user_id: user_id as i32 })) // Return middleware instance
+        ready(Ok(JwtMiddleware { user_id: user_id as i32 })) 
     }
 }

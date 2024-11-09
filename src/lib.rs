@@ -5,6 +5,6 @@ pub mod utils;
 pub mod repository;
 pub mod service;
 pub mod config;
-pub mod state; // <-- Make sure `state` is accessible
+pub mod state;
 pub mod middleware;
 pub mod handler;

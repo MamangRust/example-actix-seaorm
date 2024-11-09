@@ -1,4 +1,4 @@
-use crate::{abstract_trait::{DynPostsRepository, PostsServiceTrait}, domain::{ApiResponse, PostResponse, PostRelationResponse, CreatePostRequest, UpdatePostRequest}, repository, utils::AppError};
+use crate::{abstract_trait::{DynPostsRepository, PostsServiceTrait}, domain::{ApiResponse, CreatePostRequest, ErrorResponse, PostRelationResponse, PostResponse, UpdatePostRequest}, utils::AppError};
 use async_trait::async_trait;
 
 pub struct PostService {
@@ -13,10 +13,10 @@ impl PostService {
 
 #[async_trait]
 impl PostsServiceTrait for PostService {
-    async fn get_all_posts(&self) -> Result<ApiResponse<Vec<PostResponse>>, AppError> {
+    async fn get_all_posts(&self) -> Result<ApiResponse<Vec<PostResponse>>, ErrorResponse> {
         let posts = self.repository.get_all_posts()
             .await
-            .map_err(|e| AppError::DbError(e))?;
+            .map_err(AppError::from).map_err(ErrorResponse::from)?;
 
         let responses = posts.into_iter()
             .map(|post| PostResponse::from(post))
@@ -29,24 +29,28 @@ impl PostsServiceTrait for PostService {
         })
     }
 
-    async fn get_post(&self, post_id: i32) -> Result<ApiResponse<Option<PostResponse>>, AppError> {
+    async fn get_post(&self, post_id: i32) -> Result<Option<ApiResponse<PostResponse>>, ErrorResponse> {
         let post = self.repository.get_post(post_id)
             .await
-            .map_err(|e| AppError::DbError(e))?;
+            .map_err(AppError::from).map_err(ErrorResponse::from)?;
 
-        let response = post.map(|p| PostResponse::from(p));
-
-        Ok(ApiResponse {
-            status: "success".to_string(),
-            message: "Post retrieved successfully".to_string(),
-            data: response,
-        })
+        
+        
+        if let Some(post) = post{
+            Ok(Some(ApiResponse{
+                status: "success".to_string(),
+                message: "Post retrieved successfully".to_string(),
+                data: PostResponse::from(post),
+            }))
+        }else{
+            Err(ErrorResponse::from(AppError::NotFound(format!("Posts with id {} not found", post_id))))
+        }
     }
 
-    async fn get_post_relation(&self, post_id: i32) -> Result<ApiResponse<PostRelationResponse>, AppError> {
+    async fn get_post_relation(&self, post_id: i32) -> Result<ApiResponse<PostRelationResponse>, ErrorResponse> {
         let relations = self.repository.get_post_relation(post_id)
             .await
-            .map_err(|e| AppError::DbError(e))?;
+            .map_err(AppError::from).map_err(ErrorResponse::from)?;
 
         let first_relation = relations.into_iter()
             .next()
@@ -62,10 +66,10 @@ impl PostsServiceTrait for PostService {
     async fn create_post(
         &self,
         input: &CreatePostRequest
-    ) -> Result<ApiResponse<PostResponse>, AppError> {
+    ) -> Result<ApiResponse<PostResponse>, ErrorResponse> {
         let post = self.repository.create_post(input)
             .await
-            .map_err(|e| AppError::DbError(e))?;
+            .map_err(AppError::from).map_err(ErrorResponse::from)?;
 
         Ok(ApiResponse {
             status: "success".to_string(),
@@ -77,10 +81,9 @@ impl PostsServiceTrait for PostService {
     async fn update_post(
         &self,
         input: &UpdatePostRequest
-    ) -> Result<ApiResponse<PostResponse>, AppError> {
+    ) -> Result<ApiResponse<PostResponse>, ErrorResponse> {
         let post = self.repository.update_post(input)
-            .await
-            .map_err(|e| AppError::DbError(e))?;
+            .await.map_err(AppError::from).map_err(ErrorResponse::from)?;
 
         Ok(ApiResponse {
             status: "success".to_string(),
@@ -89,10 +92,10 @@ impl PostsServiceTrait for PostService {
         })
     }
 
-    async fn delete_post(&self, post_id: i32) -> Result<ApiResponse<()>, AppError> {
+    async fn delete_post(&self, post_id: i32) -> Result<ApiResponse<()>, ErrorResponse> {
         self.repository.delete_post(post_id)
             .await
-            .map_err(|e| AppError::DbError(e))?;
+            .map_err(AppError::from).map_err(ErrorResponse::from)?;
 
         Ok(ApiResponse {
             status: "success".to_string(),

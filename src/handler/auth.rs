@@ -1,6 +1,6 @@
 use actix_web::{
-    cookie::{time::Duration as ActixWebDuration, Cookie},
-    get, post, web, HttpMessage, HttpRequest, HttpResponse, Responder,
+    
+    get, post, web,  HttpResponse, Responder,
 };
 use serde_json::json;
 
@@ -13,7 +13,7 @@ async fn register_user_handler(
 ) -> impl Responder {
     match data.di_container.auth_service.register_user(&body).await {
         Ok(response) => HttpResponse::Ok().json(response),
-        Err(e) => HttpResponse::InternalServerError().json(e.to_string()),
+        Err(e) => HttpResponse::InternalServerError().json(e),
     }
 }
 
@@ -24,7 +24,7 @@ async fn login_user_handler(
 ) -> impl Responder {
     match data.di_container.auth_service.login_user(&body).await {
         Ok(response) => HttpResponse::Ok().json(response),
-        Err(e) => HttpResponse::Unauthorized().json(e.to_string()),
+        Err(e) => HttpResponse::Unauthorized().json(e),
     }
 }
 

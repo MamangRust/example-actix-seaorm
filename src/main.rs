@@ -2,6 +2,7 @@ use actix_cors::Cors;
 use actix_web::{http::header, middleware::Logger, web::Data, App, HttpServer};
 use example_crud_blog_seaorm::{handler::router_config, state};
 use sea_orm::{Database, DatabaseConnection};
+use example_crud_blog_seaorm::utils::tracing;
 
 
 
@@ -12,6 +13,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL not found");
     let db: DatabaseConnection = Database::connect(&database_url).await?;
+
+    tracing();
 
 
     let app_state = state::AppState::new(db.clone());

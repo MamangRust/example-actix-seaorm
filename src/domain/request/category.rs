@@ -9,6 +9,6 @@ pub struct CreateCategoryRequest {
 
 #[derive(Serialize, Deserialize, Clone,Debug)]
 pub struct UpdateCategoryRequest {
-    pub id: i32,
+    pub id: Option<i32>,
     pub name: Option<String>,
 }

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{domain::{ApiResponse, PostRelationResponse, PostResponse, CreatePostRequest, UpdatePostRequest}, entities::posts, utils::AppError};
+use crate::{domain::{ApiResponse, CreatePostRequest, ErrorResponse, PostRelationResponse, PostResponse, UpdatePostRequest}, entities::posts};
 use async_trait::async_trait;
 use sea_orm::DbErr;
 
@@ -27,16 +27,16 @@ pub trait PostsRepositoryTrait {
 
 #[async_trait]
 pub trait PostsServiceTrait {
-    async fn get_all_posts(&self) -> Result<ApiResponse<Vec<PostResponse>>, AppError>;
-    async fn get_post(&self, post_id: i32) -> Result<ApiResponse<Option<PostResponse>>, AppError> ;
-    async fn get_post_relation(&self, post_id: i32) -> Result<ApiResponse<PostRelationResponse>, AppError>;
+    async fn get_all_posts(&self) -> Result<ApiResponse<Vec<PostResponse>>, ErrorResponse>;
+    async fn get_post(&self, post_id: i32) -> Result<Option<ApiResponse<PostResponse>>, ErrorResponse>  ;
+    async fn get_post_relation(&self, post_id: i32) -> Result<ApiResponse<PostRelationResponse>, ErrorResponse>;
     async fn create_post(
         &self,
         input: &CreatePostRequest
-    ) -> Result<ApiResponse<PostResponse>, AppError>;
+    ) -> Result<ApiResponse<PostResponse>, ErrorResponse>;
     async fn update_post(
         &self,
         input: &UpdatePostRequest
-    ) -> Result<ApiResponse<PostResponse>, AppError>;
-    async fn delete_post(&self, post_id: i32) -> Result<ApiResponse<()>, AppError>;
+    ) -> Result<ApiResponse<PostResponse>, ErrorResponse>;
+    async fn delete_post(&self, post_id: i32) -> Result<ApiResponse<()>, ErrorResponse>;
 }

@@ -12,7 +12,7 @@ pub struct CreatePostRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct UpdatePostRequest {
-    pub post_id: i32,
+    pub post_id: Option<i32>,
     pub title: String,
     pub body: String,
     pub img: String,
