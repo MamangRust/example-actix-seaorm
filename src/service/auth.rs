@@ -22,8 +22,8 @@ impl AuthService {
 impl AuthServiceTrait for AuthService {
     async fn register_user(&self, input: &RegisterRequest) -> Result<ApiResponse<UserResponse>, ErrorResponse> {
         let exists = self.repository.find_by_email_exists(&input.email).await
-            .map_err(AppError::from)  // Map DbErr to AppError
-            .map_err(ErrorResponse::from)?; // Then map AppError to ErrorResponse
+            .map_err(AppError::from)  
+            .map_err(ErrorResponse::from)?; 
 
         if exists {
             return Err(ErrorResponse::from(AppError::EmailAlreadyExists));

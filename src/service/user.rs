@@ -21,6 +21,15 @@ impl UserServiceTrait for UserService {
         &self,
         input: &CreateUserRequest,
     ) -> Result<ApiResponse<UserResponse>, ErrorResponse> {
+        let exists = self.repository.find_by_email_exists(&input.email).await
+            .map_err(AppError::from)  
+            .map_err(ErrorResponse::from)?; 
+
+        if exists {
+            return Err(ErrorResponse::from(AppError::EmailAlreadyExists));
+        }
+
+
         let user = self.repository.create_user(input).await.map_err(AppError::from).map_err(ErrorResponse::from)?;
         
         Ok(ApiResponse {
