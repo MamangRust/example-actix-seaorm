@@ -1,23 +1,29 @@
-# Gunakan image Rust yang lebih ramping
+# Use a slim Rust image
 FROM rust:1.82.0-slim
 
-# Set directory kerja di dalam container
+# Set working directory in the container
 WORKDIR /app
 
-# Salin semua file ke dalam container
+# Install dependencies for OpenSSL and pkg-config
+RUN apt-get update && apt-get install -y \
+    libssl-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy all files into the container
 COPY . .
 
-# Install cargo-watch untuk pemantauan otomatis
+# Install cargo-watch for automatic file change monitoring (optional)
 RUN cargo install cargo-watch
 
-# Install sea-orm-cli untuk menjalankan migrasi
+# Install sea-orm-cli for migrations
 RUN cargo install sea-orm-cli
 
-# Build aplikasi dalam mode release
+# Build the application in release mode
 RUN cargo build --release
 
-# Expose port yang akan digunakan oleh aplikasi
+# Expose the port that the application will use
 EXPOSE 8080
 
-# Perintah untuk menjalankan aplikasi, bisa juga tambahkan migrasi SeaORM sebelum aplikasi berjalan
-CMD sea-orm-cli migrate up && ./target/release/my_rust_app
+# Command to run the application, including SeaORM migrations
+CMD sea-orm-cli migrate up && ./target/release/example-crud-blog-seaorm
