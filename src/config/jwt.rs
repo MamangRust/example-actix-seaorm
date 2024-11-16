@@ -22,11 +22,15 @@ impl Claims {
 }
 
 #[derive(Clone)]
-pub struct JwtConfig;
+pub struct JwtConfig{
+    pub jwt_secret: String,
+}
 
 impl JwtConfig {
-    pub fn new() -> Self {
-        JwtConfig
+    pub fn new(jwt_secret: &str) -> Self {
+        JwtConfig{
+            jwt_secret: jwt_secret.to_string()
+        }
     }
 
     pub fn generate_token(&self, user_id: i64) -> Result<String, AppError> {

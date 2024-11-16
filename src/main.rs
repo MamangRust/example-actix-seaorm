@@ -16,8 +16,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing();
 
+    let jwt_secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 
-    let app_state = state::AppState::new(db.clone());
+    
+
+
+    let app_state = state::AppState::new(db.clone(), &jwt_secret);
 
     HttpServer::new(move || {
         let cors = Cors::default()

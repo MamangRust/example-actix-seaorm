@@ -29,9 +29,8 @@ actix-multipart = "0.7.2"
 
 uuid = { version = "1.11.0", features = ["serde", "v4"] }
 futures-util = "0.3.31"
+
 tracing = "0.1.40"
-
-
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 [dev-dependencies]

@@ -9,8 +9,8 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn new(pool: DatabaseConnection) -> Self {
-        let jwt_config = JwtConfig::new();
+    pub fn new(pool: DatabaseConnection, jwt_secret: &str) -> Self {
+        let jwt_config = JwtConfig::new(jwt_secret);
         let hashing = Hashing::new();
 
         let di_container = DependenciesInject::new(pool, hashing, jwt_config.clone());
