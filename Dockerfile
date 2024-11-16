@@ -27,3 +27,5 @@ EXPOSE 8080
 
 # Command to run the application, including SeaORM migrations
 CMD sea-orm-cli migrate up && ./target/release/example-crud-blog-seaorm
+
+
